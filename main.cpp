@@ -3,42 +3,50 @@
 
 
 #if TEST_WITH_OBJECT_MATRIX
-#include "3d_graph_mat.hpp"
 #include <list>
 #include <atomic>
 #include <string>
 #include <iostream>
 #include <random>
+#include <variant>
+#include "3d_graph_mat.hpp"
 
 using namespace std;
 
-struct ID_Creator {
-	typedef uint16_t id_type;
-
-	inline static id_type currID { 10000 };
-
-public:
-	const atomic<id_type> id;
-};
-//ID_Creator 
-
-struct Entity: ID_Creator {
-	int id;
-};
-
-struct BoxObject {
-public:
-	std::string name;
-	std::list<Entity*> entities;
-	int id;
-
-	BoxObject() : id(decltype(id){}) {}
-	BoxObject(BoxObject&) = delete;
-	BoxObject(BoxObject&&) = delete;
-};
+#include "classes.hpp"
 
 int main() {
-	Graph_Matrix_3D<BoxObject> matrix({100, 100, 1000});
+	auto f = []{
+		return BoxObject{ "name", {}, 5 };
+	};
+
+	auto fint = [] {
+		return 5;
+	};
+	cout << boolalpha << std::is_same_v <invoke_result_t<decltype(f)>, BoxObject> << '\n' <<
+		is_invocable_r_v<BoxObject&&, decltype(f)> 
+		<< "\n" << is_invocable_r_v<invoke_result_t<decltype(f)>&&, decltype(f)> << endl;
+
+	cout << boolalpha << std::is_same_v <invoke_result_t<decltype(fint)>, int> << typeid(int).name() << '\n' <<
+		is_invocable_r_v<int, decltype(fint)>
+		<< "\n" << is_invocable_r_v<invoke_result_t<decltype(fint)>, decltype(fint)> << endl;
+
+	typedef	variant<
+		function<BoxObject && ()>,
+		function<BoxObject && (int, int, int)>,
+		function<BoxObject && (Graph_Box_3D<BoxObject>&)>
+	> Init_Func;
+
+	Init_Func initialiser;
+	//initialiser = [](int x, int y, int z) {
+	//	return BoxObject(to_string(100 * x + 10 * y + z), {}, x ^ y ^ z);
+	//};
+
+	return 0;
+
+	Graph_Matrix_3D<BoxObject> matrix({40, 40, 40});
+	matrix.resume_auto_expansion();
+	std::this_thread::sleep_for(std::chrono::seconds(10));
 
 	//auto func = [](Graph_Box_3D<BoxObject>&) {};
 	//auto func2 = [](int i, int j, int z) {
@@ -63,7 +71,6 @@ int main() {
 		//box.id = std::rand();
 		//box.name = "Some name";
 	//});
-	system("pause");
 }
 
 #elif OLD_TEST

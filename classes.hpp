@@ -20,6 +20,4 @@ public:
 
 	BoxObject() : id(decltype(id){}) {}
 	BoxObject(std::string&& s, decltype(entities) && entities, int id) : name(std::move(s)), entities(std::move(entities)), id(id) {}
-	BoxObject(BoxObject&) = delete;
-	BoxObject(BoxObject&& old_box) = default;
 };

@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphTester", "GraphTester.vcxproj", "{38C6B8F4-FC74-4E8D-AE75-E39C2E0665A2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "..\UnitTest\UnitTest.vcxproj", "{D8587CF3-DE3D-46FD-963C-B06C39F64DD8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{38C6B8F4-FC74-4E8D-AE75-E39C2E0665A2}.Release|x64.Build.0 = Release|x64
 		{38C6B8F4-FC74-4E8D-AE75-E39C2E0665A2}.Release|x86.ActiveCfg = Release|Win32
 		{38C6B8F4-FC74-4E8D-AE75-E39C2E0665A2}.Release|x86.Build.0 = Release|Win32
+		{D8587CF3-DE3D-46FD-963C-B06C39F64DD8}.Debug|x64.ActiveCfg = Debug|x64
+		{D8587CF3-DE3D-46FD-963C-B06C39F64DD8}.Debug|x64.Build.0 = Debug|x64
+		{D8587CF3-DE3D-46FD-963C-B06C39F64DD8}.Debug|x86.ActiveCfg = Debug|Win32
+		{D8587CF3-DE3D-46FD-963C-B06C39F64DD8}.Debug|x86.Build.0 = Debug|Win32
+		{D8587CF3-DE3D-46FD-963C-B06C39F64DD8}.Release|x64.ActiveCfg = Release|x64
+		{D8587CF3-DE3D-46FD-963C-B06C39F64DD8}.Release|x64.Build.0 = Release|x64
+		{D8587CF3-DE3D-46FD-963C-B06C39F64DD8}.Release|x86.ActiveCfg = Release|Win32
+		{D8587CF3-DE3D-46FD-963C-B06C39F64DD8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

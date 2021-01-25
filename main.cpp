@@ -9,68 +9,64 @@
 #include <iostream>
 #include <random>
 #include <variant>
+#include <stack>
 #include "3d_graph_mat.hpp"
 
 using namespace std;
 
 #include "classes.hpp"
 
+template<typename T1, typename  T2, typename  T3>
+std::ostream& operator<<(std::ostream& os, const std::tuple<T1,T2,T3>& t) noexcept {
+	return os << std::get<0>(t) << std::get<1>(t) << std::get<2>(t) << '\n';
+}
+
+struct Pool {
+	std::stack<BoxObject*> pool;
+	
+	inline void push(BoxObject* p) {
+		pool.push(p);
+	}
+	inline auto top() {
+		return pool.top();
+	}
+	~Pool() {
+		while (!pool.empty()) {
+			delete pool.top();
+			pool.pop();
+		}
+	}
+};
+
 int main() {
-	auto f = []{
-		return BoxObject{ "name", {}, 5 };
+	Pool pool;
+	auto initialiser = [n = 0, &pool](int x, int y, int z) mutable -> BoxObject* {
+		++n;
+		if(n%10 == 0) std::cout << "Adding box " << n << '\n';
+
+		if ((x > -3 && x < 3) && (y > -3 && y < 3) && (z > -3 && z < 3)) {
+			pool.push(new BoxObject(to_string(100 * x + 10 * y + z), {}, x ^ y ^ z));
+			return pool.top();
+		}
+
+		return nullptr;
 	};
 
-	auto fint = [] {
-		return 5;
-	};
-	cout << boolalpha << std::is_same_v <invoke_result_t<decltype(f)>, BoxObject> << '\n' <<
-		is_invocable_r_v<BoxObject&&, decltype(f)> 
-		<< "\n" << is_invocable_r_v<invoke_result_t<decltype(f)>&&, decltype(f)> << endl;
+	std::cout << std::boolalpha << std::is_invocable_v<function<void(BoxObject&, int, int, int)>, BoxObject&, int, int, int> << '\n';
+	std::cout << std::is_invocable_v<function<void(BoxObject&, int, int, int)>, BoxObject&, int, int, int> << '\n';
 
-	cout << boolalpha << std::is_same_v <invoke_result_t<decltype(fint)>, int> << typeid(int).name() << '\n' <<
-		is_invocable_r_v<int, decltype(fint)>
-		<< "\n" << is_invocable_r_v<invoke_result_t<decltype(fint)>, decltype(fint)> << endl;
+	Graph_Matrix_3D<BoxObject*> matrix({5, 5, 5}, initialiser);
+	matrix.set_expansion_rate(1);
+	matrix.resume_auto_expansion( initialiser );
+	//std::this_thread::sleep_for(std::chrono::seconds(5));
+	matrix.pause_auto_expansion();
+	cout << matrix.get_size() << std::endl;
 
-	typedef	variant<
-		function<BoxObject && ()>,
-		function<BoxObject && (int, int, int)>,
-		function<BoxObject && (Graph_Box_3D<BoxObject>&)>
-	> Init_Func;
-
-	Init_Func initialiser;
-	//initialiser = [](int x, int y, int z) {
-	//	return BoxObject(to_string(100 * x + 10 * y + z), {}, x ^ y ^ z);
-	//};
-
-	return 0;
-
-	Graph_Matrix_3D<BoxObject> matrix({40, 40, 40});
-	matrix.resume_auto_expansion();
-	std::this_thread::sleep_for(std::chrono::seconds(10));
-
-	//auto func = [](Graph_Box_3D<BoxObject>&) {};
-	//auto func2 = [](int i, int j, int z) {
-	//	return i + j + z;
-	//};
-	//auto func3 = [](int i, int j, int z) {
-	//	return;
-	//};
-
-	//std::cout << std::boolalpha << std::is_invocable_r_v<void, decltype(func), Graph_Box_3D<BoxObject>&>;	// true
-	//std::cout << std::boolalpha << std::is_invocable_r_v<void, decltype(func2), int, int, int>;	// true	(actually returns int, but it is 'convertible to void')
-	//std::cout << std::boolalpha << std::is_invocable_r_v<void, decltype(func2), int, int, int, int>;	// false
-	//std::cout << std::boolalpha << std::is_invocable_r_v<int, decltype(func2), int, int, int>;	// true
-	//std::cout << std::boolalpha << std::is_invocable_r_v<int, decltype(func2), int, int, int, int>;	// false
-	//std::cout << std::boolalpha << std::is_invocable_r_v<int, decltype(func2), int, int, int, int, Graph_Box_3D<BoxObject>>;	// false
-	//std::cout << std::boolalpha << std::is_invocable_r_v<void, decltype(func3), int, int, int>;	// true
-	//std::cout << std::boolalpha << std::is_invocable_r_v<int, decltype(func3), int, int, int>;	// false
-	//std::cout << std::boolalpha << std::is_invocable_r_v<int, decltype(func3), int, int>;	// false
-
-	//matrix.init([](BoxObject& box) {
-		//box.entities = { nullptr, nullptr, nullptr };
-		//box.id = std::rand();
-		//box.name = "Some name";
-	//});
+	Graph_Matrix_3D<int> imat({ 100,100,100 }, [](int x, int y, int z) -> int {
+		return 100 * x + 10 * y + z;
+		});
+	auto* box = imat.find(235);
+	cout << imat.get_size() << std::endl;
 }
 
 #elif OLD_TEST
@@ -81,14 +77,15 @@ int main() {
 
 using namespace std;
 
-void func(Graph_Matrix_3D<int>& mat) {
+void distMat(Graph_Matrix_3D<int>& mat) {
 	static int count = 1;
 	std::cout << "Called " << count++ << "th time: \n";
-	//for (int i = mat.min_z; i <= mat.max_z; i++)
-	//{
-	//	mat.disp_xy_layer(i);	// debug
-	//	std::cout << "\n\n";	// debug
-	//}
+
+	for (int i = mat.min_z; i <= mat.max_z; i++)
+	{
+		mat.disp_xy_layer(i);	// debug
+		std::cout << "\n\n";	// debug
+	}
 }
 
 int main(int argc, char const* argv[])
